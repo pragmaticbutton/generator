@@ -14,9 +14,12 @@ import (
 func main() {
 
 	app := &cli.App{
-		Name:      "Generate new project",
-		Args:      true,
-		ArgsUsage: "ne znam",
+		// TODO: improve these parameters
+		Name:                 "Generate new project",
+		Usage:                "go run cmd/main.go newProjectName",
+		Args:                 true,
+		ArgsUsage:            "Specify new project's name",
+		EnableBashCompletion: true,
 		Action: func(ctx *cli.Context) error {
 			if ctx.NArg() == 0 {
 				fmt.Println("missing name of the project")
@@ -41,38 +44,46 @@ func main() {
 func generateProject(name string) error {
 
 	// TODO: improve this and make it configurable
-	projLoc := ".."
-	tmplDir := "templates/go/simple"
+	location := ".."
+	templateDir := "templates/go/simple"
 
-	err := filepath.WalkDir(tmplDir, func(path string, d fs.DirEntry, err error) error {
+	if err := copyContentsOfDir(templateDir, location, name); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func copyContentsOfDir(dirPath, location, name string) error {
+	err := filepath.WalkDir(dirPath, func(path string, d fs.DirEntry, err error) error {
 
 		if err != nil {
 			return err
 		}
 
-		p, err1 := filepath.Rel(tmplDir, path)
-		if err1 != nil {
-			return err1
+		relPath, relErr := filepath.Rel(dirPath, path)
+		if relErr != nil {
+			return relErr
 		}
 
-		fp := filepath.Join(projLoc, name, p)
+		destPath := filepath.Join(location, name, relPath)
 
 		if d.IsDir() {
-			if err := os.Mkdir(fp, 0744); err != nil {
+			if err := os.Mkdir(destPath, 0744); err != nil {
 				return err
 			}
 		} else {
-			f, err := os.Open(path)
+			src, err := os.Open(path)
 			if err != nil {
 				return err
 			}
 
-			fd, err := os.OpenFile(fp, os.O_CREATE|os.O_WRONLY, 0644)
+			dst, err := os.OpenFile(destPath, os.O_CREATE|os.O_WRONLY, 0644)
 			if err != nil {
 				return err
 			}
 
-			if _, err := io.Copy(fd, f); err != nil {
+			if _, err := io.Copy(dst, src); err != nil {
 				return err
 			}
 		}
