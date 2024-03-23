@@ -15,18 +15,19 @@ func main() {
 
 	app := &cli.App{
 		// TODO: improve these parameters
-		Name:                 "Generate new project",
-		Usage:                "go run cmd/main.go newProjectName",
-		Args:                 true,
-		ArgsUsage:            "Specify new project's name",
+		Name:  "Generate new project",
+		Usage: "go run cmd/main.go newProjectName",
+		Args:  true,
+		//ArgsUsage:            "Specify new project's name",
 		EnableBashCompletion: true,
 		Action: func(ctx *cli.Context) error {
-			if ctx.NArg() == 0 {
-				fmt.Println("missing name of the project")
+			if ctx.NArg() != 2 {
 				os.Exit(1)
 			}
 
-			if err := generateProject(ctx.Args().First()); err != nil {
+			loc := ctx.Args().Get(0)
+			name := ctx.Args().Get(1)
+			if err := generateProject(loc, name); err != nil {
 				fmt.Printf("%v\n", err)
 				os.Exit(1)
 			}
@@ -41,10 +42,8 @@ func main() {
 
 }
 
-func generateProject(name string) error {
+func generateProject(location, name string) error {
 
-	// TODO: improve this and make it configurable
-	location := ".."
 	templateDir := "templates/go/simple"
 
 	if err := copyContentsOfDir(templateDir, location, name); err != nil {
