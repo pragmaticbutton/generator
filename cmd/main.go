@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"io"
+	"generator/internal/domain"
 	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
+	"text/template"
 
 	cli "github.com/urfave/cli/v2"
 )
@@ -54,6 +55,9 @@ func generateProject(location, name string) error {
 }
 
 func copyContentsOfDir(dirPath, location, name string) error {
+
+	p := domain.New(name)
+
 	err := filepath.WalkDir(dirPath, func(path string, d fs.DirEntry, err error) error {
 
 		if err != nil {
@@ -72,17 +76,19 @@ func copyContentsOfDir(dirPath, location, name string) error {
 				return err
 			}
 		} else {
-			src, err := os.Open(path)
-			if err != nil {
-				return err
-			}
 
 			dst, err := os.OpenFile(destPath, os.O_CREATE|os.O_WRONLY, 0644)
 			if err != nil {
 				return err
 			}
 
-			if _, err := io.Copy(dst, src); err != nil {
+			tmpl, err := template.ParseFiles(path)
+			if err != nil {
+				return err
+			}
+
+			err = tmpl.Execute(dst, p)
+			if err != nil {
 				return err
 			}
 		}
