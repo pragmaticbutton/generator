@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"generator/internal/domain"
+	"generator/internal/project"
 	"io/fs"
 	"log"
 	"os"
@@ -56,7 +56,7 @@ func generateProject(location, name string) error {
 
 func copyContentsOfDir(dirPath, location, name string) error {
 
-	p := domain.New(name)
+	p := project.New(name)
 
 	err := filepath.WalkDir(dirPath, func(path string, d fs.DirEntry, err error) error {
 
