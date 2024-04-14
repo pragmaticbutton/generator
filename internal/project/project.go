@@ -12,12 +12,13 @@ const (
 	templateDir = "templates/go/simple"
 )
 
+// Project represents project which should be generated
 type Project struct {
 	Location string
 	Name     string
 }
 
-func New(location string, name string) *Project {
+func New(location, name string) *Project {
 	return &Project{
 		Location: location,
 		Name:     name,
