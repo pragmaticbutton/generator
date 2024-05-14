@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	templateDir = "templates/go/simple"
+	templateDir = "templates/go/server"
 )
 
 // Project represents project which should be generated
